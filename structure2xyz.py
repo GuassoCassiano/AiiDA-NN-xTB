@@ -18,42 +18,42 @@ class NNxTBCalculation(CalcJob):
         spec.input('metadata.options.input_filename', valid_type=str, default='input.xyz')
         spec.input('metadata.options.output_filename',valid_type=str, default='nnxtb_output.txt')
     
-def prepare_for_submision(self, folder):
-    """
-    Unwraps the AiiDA container and writes the XYZ file into the remote folder
-    """
-    # grab the structure container that was passed in
-    structure = self.input.structure
+    def prepare_for_submission(self, folder):
+        """
+        Unwraps the AiiDA container and writes the XYZ file into the remote folder
+        """
+        # grab the structure container that was passed in
+        structure = self.inputs.structure
 
-    # Get total number of atoms and orignal SMILES string for XYZ header
-    num_atoms = len(structure.sites)
-    name = structure.base.extras.get("original_smiles","Unkown SMILES")
+        # Get total number of atoms and orignal SMILES string for XYZ header
+        num_atoms = len(structure.sites)
+        name = structure.base.extras.get("original_smiles", "Unknown SMILES")
 
-    # start building the XYZ file
-    xyz_text = f"{num_atoms}\n"
-    xyz_text += f"SMILES: {name}\n"
+        # start building the XYZ file
+        xyz_text = f"{num_atoms}\n"
+        xyz_text += f"SMILES: {name}\n"
 
-    for site in structure.sites:
-        symbol = site.kind_name
-        x, y, z = site.position
+        for site in structure.sites:
+            symbol = site.kind_name
+            x, y, z = site.position
 
-        # write the xyz file with the correct spacing
-        xyz_text += f"{symbol:<4} {x:>12.5f} {y:>12.5f} {z:>12.5f}\n"
-    
-    # get the filename
-    in_filename = self.inputs.metadata.input_filename
+            # write the xyz file with the correct spacing
+            xyz_text += f"{symbol:<4} {x:>12.5f} {y:>12.5f} {z:>12.5f}\n"
+        
+        # get the filename
+        in_filename = self.inputs.metadata.options.input_filename
 
-    # write the string into the remote sandbox
-    with folder.open(in_filename, 'w') as handle:
-        handle.write(xyz_text)
+        # write the string into the remote sandbox
+        with folder.open(in_filename, 'w') as handle:
+            handle.write(xyz_text)
 
-    # telling AiiDA what terminal commands to run on the cluster
-    codeinfo = CodeInfo()
-    codeinfo.code_uuid = self.inputs.code.code.uuid
-    codeinfo.cmdline_params = [in_filename] # tells the cluster to run: nn-xtb input.xyz
+        # telling AiiDA what terminal commands to run on the cluster
+        codeinfo = CodeInfo()
+        codeinfo.code_uuid = self.inputs.code.uuid
+        codeinfo.cmdline_params = [in_filename] # tells the cluster to run: nn-xtb input.xyz
 
-    calcinfo = CalcInfo()
-    calcinfo.codes_info = [codeinfo]
-    calcinfo.retrieve_list = [self.inputs.metadata.options.output_filename]
+        calcinfo = CalcInfo()
+        calcinfo.codes_info = [codeinfo]
+        calcinfo.retrieve_list = [self.inputs.metadata.options.output_filename]
 
-    return calcinfo
+        return calcinfo
