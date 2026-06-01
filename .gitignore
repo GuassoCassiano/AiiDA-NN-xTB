@@ -1,0 +1,23 @@
+# Python caches
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Pixi environment
+.pixi/
+pixi.lock
+
+# Build tools
+dist/
+build/
+*.egg-info/
+
+# Testing and Training caches
+.pytest_cache/
+wandb/
+
+# AiiDA and Data outputs
+*.zarr/
+*.xyz
+*.out
+*.txt
