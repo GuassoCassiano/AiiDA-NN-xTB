@@ -17,6 +17,9 @@ class NNxTBCalculation(CalcJob):
         # telling AiiDA what to name each variable in its "sandbox"
         spec.input('metadata.options.input_filename', valid_type=str, default='input.xyz')
         spec.input('metadata.options.output_filename',valid_type=str, default='nnxtb_output.txt')
+
+        # NEW: tells AiiDA to route the calculation to the new parser
+        spec.input('metadata.options.parser_name', valid_type=str, default='nnxtb_parser')
     
     def prepare_for_submission(self, folder):
         """
