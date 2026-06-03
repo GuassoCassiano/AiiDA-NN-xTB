@@ -21,3 +21,9 @@ wandb/
 *.xyz
 *.out
 *.txt
+
+# xTB files for testing
+*.mol
+charges
+wbo
+xtbrestart
