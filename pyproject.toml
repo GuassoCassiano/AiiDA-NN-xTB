@@ -23,3 +23,7 @@ packages = ["aiida_nn_xtb"]
 [project.entry-points."aiida.parsers"]
 # connects structure2xyz and xyz2dict scripts
 "nnxtb_parser" = "aiida_nn_xtb.xyz2dict:NNxTBParser"
+
+[project.entry-points."aiida.workflows"]
+# connect the first 3 scripts into 1 workflow function
+"nnxtb_workchain" = "aiida_nn_xtb.workchain:NNxTBWorkChain"
