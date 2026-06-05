@@ -1,6 +1,6 @@
 from aiida import load_profile
 from aiida_nn_xtb.workchain import NNxTBWorkChain
-from aiida.orm import QueryBuilder, Dict
+from aiida.orm import QueryBuilder, Dict, Group, StructureData
 import zarr
 import numpy as np
 import argparse
@@ -59,7 +59,7 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
         all_positions.append(ase_molecule.positions)
         all_atomic_numbers.append(ase_molecule.numbers)
         
-        energy_val = dict_node.get_dict()['final_energy_dict']
+        energy_val = dict_node.get_dict()['total_energy']
         all_energies.append(energy_val)
 
     # export to Zarr
