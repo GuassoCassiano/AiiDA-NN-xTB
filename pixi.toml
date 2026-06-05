@@ -22,6 +22,10 @@ pytest = ">=8"
 pip = "*"
 setuptools = "<80"
 
+# Data Processing & Export
+zarr = ">=3.2.1,<4"
+numpy = ">=2.4.6,<3"
+
 [pypi-dependencies]
 aiida-nn-xtb = { path = ".", editable = true }
 
