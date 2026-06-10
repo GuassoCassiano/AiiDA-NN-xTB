@@ -33,7 +33,7 @@ def smiles2structure(smiles_string):
         max_coord = max(max_coord, abs(pos.x), abs(pos.y), abs(pos.z))
     
     # builds a new box that fits the widest atom and adds a 10 angstrum buffer region in all directions
-    box_size = (max_coord ** 2) + 10.0
+    box_size = (max_coord * 2) + 10.0
     dynamic_cell = [[box_size, 0.0, 0.0], [0.0, box_size, 0.0], [0.0, 0.0, box_size]]
 
     # update the structure with the dynamic box
