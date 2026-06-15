@@ -1,7 +1,7 @@
 import argparse
 from aiida import load_profile
 from aiida.engine import submit
-from aiida.orm import Str, Code, Group
+from aiida.orm import Str, Group, load_code
 from aiida_nn_xtb.workchain import NNxTBWorkChain
 
 # Boot up the database before loading AiiDA modules
@@ -16,7 +16,7 @@ def launch_batch(group_name, smiles_list, cluster_code_string):
         print(f"Created new AiiDA Group: {group_name}")
     
     # dynamically load the cluster software configuration
-    cluster_code = Code.get_from_string(cluster_code_string)
+    cluster_code = load_code(cluster_code_string)
 
     # loop through the molecules and submit them
     for smiles_string in smiles_list:

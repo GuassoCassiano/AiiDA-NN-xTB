@@ -10,7 +10,7 @@ def smiles2structure(smiles_node):
     """
 
     # unwrap the AiiDA node to get python string for RDKit
-    smiles_string = smiles.node.value
+    smiles_string = smiles_node.value
 
     # generate internal molecule structure and then add H's
     mol = Chem.MolFromSmiles(smiles_string) 
@@ -24,7 +24,6 @@ def smiles2structure(smiles_node):
         raise ValueError("RDKit failed to generate 3D coordinates for this molecule.")
 
     # generate 3D structure and optimize its position for lowest energy states
-    AllChem.EmbedMolecule(mol, AllChem.ETKDG())
     AllChem.MMFFOptimizeMolecule(mol)
 
     # save molecule conformer and extract atom positions for AiiDA StructureData

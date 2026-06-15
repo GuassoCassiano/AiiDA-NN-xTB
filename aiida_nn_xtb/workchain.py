@@ -1,6 +1,6 @@
 from aiida.engine import WorkChain, ToContext
 from aiida.orm import Str, Dict, AbstractCode
-from aiida_nn_xtb.structure2xyz import NNxTBCalculation
+from aiida.plugins import CalculationFactory
 from aiida_nn_xtb.smiles2structure import smiles2structure
 
 class NNxTBWorkChain(WorkChain):
@@ -39,6 +39,7 @@ class NNxTBWorkChain(WorkChain):
     
     def run_calculation(self):
         """Step 2: Send the math to the cluster"""
+        NNxTBCalculation = CalculationFactory('nnxtb_calc')
         # get the empty AiiDA shipping crate for script
         builder = NNxTBCalculation.get_builder()
         
