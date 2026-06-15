@@ -8,7 +8,9 @@ version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "aiida-core>=2.8.0",
-    "rdkit>=2024"
+    "rdkit>=2024",
+    "zarr>=3.2.1,<4",
+    "numpy>=2.4.6,<3"
 ]
 
 [tool.hatch.build.targets.wheel]

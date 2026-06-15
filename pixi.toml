@@ -25,6 +25,8 @@ setuptools = "<80"
 # Data Processing & Export
 zarr = ">=3.2.1,<4"
 numpy = ">=2.4.6,<3"
+rabbitmq-server = ">=4.3.1,<5"
+postgresql = ">=18.4,<19"
 
 [pypi-dependencies]
 aiida-nn-xtb = { path = ".", editable = true }
