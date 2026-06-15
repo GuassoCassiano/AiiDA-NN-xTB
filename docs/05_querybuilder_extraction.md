@@ -16,9 +16,11 @@ Finally, we have to account for edge cases where a user searches for a typoed gr
 
 A great way to understand how the `QueryBuilder` traverses data is to visualize the AiiDA database as a giant, directional flowchart. The database connects data points using strict arrows that represent where data came from and where it went. 
 
-To get our physical data, the QueryBuilder has to look forwards and backwards from the central WorkChain node:
-* **The Inputs (`with_outgoing`):** We want to find the exact 3D coordinates we started with. We tell the QueryBuilder to find the `StructureData` node that has an arrow pointing *out* of itself and into our WorkChain.
-* **The Outputs (`with_incoming`):** We want to find the final converged energy. We tell the QueryBuilder to find the `Dict` node that has an arrow pointing *into* itself coming from the WorkChain.
+Because our WorkChain generates the 3D structure internally rather than taking it as a direct input, we have to teach the QueryBuilder to follow the process deeper into the graph to find our data.
+
+* **The Outputs (with_incoming):** We want to find the final converged energy. We tell the QueryBuilder to find the `Dict` node that has an arrow pointing *into* itself coming directly from the WorkChain.
+* **The CalcJob (with_incoming):** To find our atomic coordinates, we first have to locate the exact computational job the WorkChain triggered on the cluster. We append a `CalcJobNode` that has an arrow pointing *into* it from the WorkChain.
+* **The Inputs (with_outgoing):** Now that we found the CalcJob, we can find the exact 3D coordinates it used. We tell the QueryBuilder to find the `StructureData` node that has an arrow pointing *out* of itself and into our CalcJob.
 
 ## 3. Zarr Export (The Final Package)
 
