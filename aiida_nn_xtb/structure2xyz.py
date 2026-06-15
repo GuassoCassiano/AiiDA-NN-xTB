@@ -20,6 +20,10 @@ class NNxTBCalculation(CalcJob):
 
         # NEW: tells AiiDA to route the calculation to the new parser
         spec.input('metadata.options.parser_name', valid_type=str, default='nnxtb_parser')
+
+        # NEW: registering the custom exit codes
+        spec.exit_code(300, 'ERROR_MISSING_OUTPUT', message='Output files missing from retrieved folder')
+        spec.exit_code(301, 'ERROR_REGEX_FAILED', message='Regex failed to find Total Energy in the Output')
     
     def prepare_for_submission(self, folder):
         """
