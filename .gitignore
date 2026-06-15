@@ -15,6 +15,7 @@ build/
 # Testing and Training caches
 .pytest_cache/
 wandb/
+tests/
 
 # AiiDA and Data outputs
 *.zarr/
