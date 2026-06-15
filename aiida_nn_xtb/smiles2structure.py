@@ -1,11 +1,16 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from aiida.orm import StructureData
+from aiida.engine import calcfunction
 
-def smiles2structure(smiles_string):
+@calcfunction
+def smiles2structure(smiles_node):
     """
     Converts SMILES strings into an AiiDA StructureData Node
     """
+
+    # unwrap the AiiDA node to get python string for RDKit
+    smiles_string = smiles.node.value
 
     # generate internal molecule structure and then add H's
     mol = Chem.MolFromSmiles(smiles_string) 

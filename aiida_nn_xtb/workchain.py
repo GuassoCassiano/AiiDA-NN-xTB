@@ -1,5 +1,5 @@
 from aiida.engine import WorkChain, ToContext
-from aiida.orm import Str, Dict, Code
+from aiida.orm import Str, Dict, AbstractCode
 from aiida_nn_xtb.structure2xyz import NNxTBCalculation
 from aiida_nn_xtb.smiles2structure import smiles2structure
 
@@ -14,7 +14,9 @@ class NNxTBWorkChain(WorkChain):
 
         # define the type of data the user needs to give AiiDA
         spec.input('smiles', valid_type=Str, help='The SMILES string of the Molecule')
-        spec.input('code', valid_type=Code, help='The NN-xTB code set up on the cluster')
+
+        # updated to AbstractCode to accurately accept all code types
+        spec.input('code', valid_type=AbstractCode, help='The NN-xTB code set up on the cluster')
 
         # defining the chronological order of scripts the WorkChain will follow
         spec.outline(
@@ -28,11 +30,9 @@ class NNxTBWorkChain(WorkChain):
 
     def build_structure(self):
         """ Step 1: Converts the SMILES string to a 3D structure"""
-        # get the unwrapped string from self
-        raw_string = self.inputs.smiles.value
 
         # call 'smiles2structure' using smiles input
-        structure_results = smiles2structure(raw_string)
+        structure_results = smiles2structure(self.inputs.smiles)
 
         # using ToContext to let the results be used by the other AiiDA functions
         self.ctx.structure = structure_results
@@ -56,6 +56,12 @@ class NNxTBWorkChain(WorkChain):
         """ Step 3: Grab the parsed Dictionary and output it"""
         # The parser already ran while we were sleeping!
         # We just grab the finished dictionary from the calculation's outputs.
+
+        # NEW: Added failure edge case for safety
+        if not self.ctx.raw_results.is_finished_ok:
+            self.report("The NN-xTB calculation failed on the cluster")
+            return self.ctx.raw_results.exit_code
+
         clean_results = self.ctx.raw_results.outputs.results
 
         # output the results to be stored
