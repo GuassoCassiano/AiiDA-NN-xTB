@@ -23,15 +23,6 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
         filters={'attributes.exit_status': 0},
         tag='my_workchain'
     )
-
-    # find the Input Structure
-    qb.append(
-        StructureData,
-        with_outgoing='my_workchain',
-        project='*',
-        tag='structure'
-    )
-
     # find the Output Dictionary
     qb.append(
         Dict,
@@ -39,6 +30,23 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
         project='*',
         tag='results'
     )
+
+    # find the CalcJob that was executed in the WorkChain
+    qb.append(
+        aiida.orm.CalcJobNode,
+        with_incoming='my_workchain',
+        tag='my_calcjob'
+    )
+
+    # find the Input Structure
+    qb.append(
+        StructureData,
+        with_outgoing='my_calcjob',
+        project='*',
+        tag='structure'
+    )
+
+
 
     total_calcs = qb.count()
     print(f"Found {total_calcs} perfect calculations in the '{target_group}' batch.")
