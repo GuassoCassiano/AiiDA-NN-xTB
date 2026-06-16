@@ -79,6 +79,8 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
 
     # export to Zarr
     print("Writing data to dataset.zarr...")
+    root = zarr.open('dataset.zarr', mode='w')
+    
     root.create_dataset('positions', data=flat_positions, dtype=np.float32)
     root.create_dataset('atomic_numbers', data=flat_atomic_numbers, dtype=np.int32)
     root.create_dataset('energies', data=np.array(all_energies, dtype=np.float32))
