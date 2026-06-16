@@ -12,6 +12,10 @@ def smiles2structure(smiles_node):
     # unwrap the AiiDA node to get python string for RDKit
     smiles_string = smiles_node.value
 
+    # additional validation
+    if len(smiles_string.strip()) == 0:
+        raise ValueError("Empty SMILES string provided")
+
     # generate internal molecule structure and then add H's
     mol = Chem.MolFromSmiles(smiles_string) 
     if mol is None: 
