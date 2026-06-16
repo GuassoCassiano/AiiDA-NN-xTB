@@ -19,7 +19,7 @@ class NNxTBParser(Parser):
             return self.exit_codes.ERROR_MISSING_OUTPUT
 
         final_energy = None
-        energy_pattern = re.compile(r"TOTAL ENERGY\s+([-+]?\d*\.\d+)")
+        energy_pattern = re.compile(r"TOTAL\s+ENERGY\s+([-+]?\d+\.?\d*(?:[eE][-+]?\d+)?)")
 
 
         with out_folder.base.repository.open(output_filename, 'r') as file:

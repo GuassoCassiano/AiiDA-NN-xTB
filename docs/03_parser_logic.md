@@ -12,7 +12,7 @@ We do this in two steps. First, we ask the original calculation node what it nam
 
 With the file located, the script needs to dig through the raw text and find the exact final energy value. We use Python's `re` (Regular Expressions) library to create a highly specific search pattern: `re.compile(r"TOTAL ENERGY\s+([-+]?\d*\.\d+)")`.
 
-*(Note on the Regex: The pattern `r"TOTAL ENERGY\s+([-+]?\d*\.\d+)"` works in three distinct parts. It first locks onto the literal string `TOTAL ENERGY`, uses `\s+` to bridge across any variable amount of blank spaces or tabs, and uses the capture group `([-+]?\d*\.\d+)` to safely extract the actual decimal number—including optional negative signs—while ignoring the rest of the file.)*
+*(Note on the Regex: The pattern `r"TOTAL\s+ENERGY\s+([-+]?\d+\.?\d*(?:[eE][-+]?\d+)?)"` works in three distinct parts. It locks onto the words TOTAL and ENERGY while allowing for flexible spacing between them. It then uses `\s+` to bridge across any variable amount of blank spaces. Finally, it uses a complex capture group to safely extract the actual decimal number, including optional negative signs and scientific notation like e-12, while ignoring the rest of the file.)*
 
 The script opens the output file and reads it line by line. The moment it spots a line matching our "TOTAL ENERGY" pattern, it reaches in, extracts just the numerical value, and safely converts it into a standard Python float. 
 
