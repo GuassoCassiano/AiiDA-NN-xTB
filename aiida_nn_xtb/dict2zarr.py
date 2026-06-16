@@ -62,7 +62,7 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
     num_atoms_per_mol =[]
 
     # loop and extract
-    for structure_node, dict_node in qb.all():
+    for dict_node, strucutre_node in qb.all():
         ase_molecule = structure_node.get_ase()
         
         all_positions.append(ase_molecule.positions)
