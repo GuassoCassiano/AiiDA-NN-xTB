@@ -1,4 +1,5 @@
 import argparse
+import sys
 from aiida import load_profile
 from aiida.engine import submit
 from aiida.orm import Str, Group, load_code
@@ -44,9 +45,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # open the file and read the strings into a list
-    with open(args.file, 'r') as file:
-        # this reads every line and ignores empty spaces
-        imported_smiles = [line.strip() for line in file if line.strip()] 
+  try:
+        with open(args.file, 'r') as file:
+            imported_smiles = [line.strip() for line in file if line.strip()]
+        if not imported_smiles:
+            print("Error: No valid SMILES strings found in file")
+            sys.exit(1)
+    except FileNotFoundError:
+        print(f"Error: File '{args.file}' not found")
+        sys.exit(1)
+    except IOError as e:
+        print(f"Error reading file: {e}")
+        sys.exit(1)
     
     launch_batch(
         group_name=args.group, 
