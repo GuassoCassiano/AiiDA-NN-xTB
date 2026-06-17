@@ -9,9 +9,6 @@ platforms = ["linux-64"]
 # Core Language
 python = ">=3.11,<3.13"
 
-# WorkFlow Engine
-aiida-core = ">=2.8.0,<3"
-
 # Chemistry
 rdkit = ">=2024"
 
@@ -30,6 +27,7 @@ postgresql = ">=18.4,<19"
 
 [pypi-dependencies]
 aiida-nn-xtb = { path = ".", editable = true }
+aiida-core = { version = ">=2.8.0,<3", extras = ["atomic_tools", "tui"] }
 
 [tasks]
 test = "pytest tests/ -v"
