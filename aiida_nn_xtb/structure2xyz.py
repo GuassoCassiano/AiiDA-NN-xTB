@@ -1,5 +1,5 @@
 from aiida.engine import CalcJob
-from aiida.orm import StructureData
+from aiida.orm import StructureData, Dict
 from aiida.common import CalcInfo, CodeInfo
 
 class NNxTBCalculation(CalcJob):
@@ -20,6 +20,11 @@ class NNxTBCalculation(CalcJob):
 
         # NEW: tells AiiDA to route the calculation to the new parser
         spec.input('metadata.options.parser_name', valid_type=str, default='nnxtb_parser')
+
+        # telling AiiDA to output final Dict to exit the wrapper
+        spec.output('results', valid_type=Dict, help='The parsed total energy')
+
+        spec.default_output_node = 'results'
 
         # NEW: registering the custom exit codes
         spec.exit_code(300, 'ERROR_MISSING_OUTPUT', message='Output files missing from retrieved folder')
@@ -59,6 +64,9 @@ class NNxTBCalculation(CalcJob):
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.cmdline_params = [in_filename] # tells the cluster to run: nn-xtb input.xyz
 
+        # NEW: tells aiida to save the xtb terminal output into a txt file 
+        codeinfo.stdout_name = self.inputs.metadata.options.output_filename
+        
         calcinfo = CalcInfo()
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = [self.inputs.metadata.options.output_filename]

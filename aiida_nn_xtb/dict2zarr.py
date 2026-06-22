@@ -62,7 +62,7 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
     num_atoms_per_mol =[]
 
     # loop and extract
-    for dict_node, strucutre_node in qb.all():
+    for dict_node, structure_node in qb.all():
         ase_molecule = structure_node.get_ase()
         
         all_positions.append(ase_molecule.positions)
@@ -81,10 +81,15 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
     print("Writing data to dataset.zarr...")
     root = zarr.open('dataset.zarr', mode='w')
     
-    root.create_dataset('positions', data=flat_positions, dtype=np.float32)
-    root.create_dataset('atomic_numbers', data=flat_atomic_numbers, dtype=np.int32)
-    root.create_dataset('energies', data=np.array(all_energies, dtype=np.float32))
-    root.create_dataset('num_atoms', data=np.array(num_atoms_per_mol, dtype=np.int32))
+    # convert the lists into strictly formatted numpy arrays
+    energies_arr = np.array(all_energies, dtype=np.float32)
+    num_atoms_arr = np.array(num_atoms_per_mol, dtype=np.int32)
+
+    # create the empty arrays with the exact shape and then fill them with your data
+    root.create_array('positions', shape=flat_positions.shape, dtype=np.float32)[:] = flat_positions
+    root.create_array('atomic_numbers', shape=flat_atomic_numbers.shape, dtype=np.int32)[:] = flat_atomic_numbers
+    root.create_array('energies', shape=energies_arr.shape, dtype=np.float32)[:] = energies_arr
+    root.create_array('num_atoms', shape=num_atoms_arr.shape, dtype=np.int32)[:] = num_atoms_arr
 
     print("Export complete! Zarr store is clean and ready.")
 

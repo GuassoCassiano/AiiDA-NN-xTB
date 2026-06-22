@@ -1,5 +1,5 @@
 from aiida.engine import WorkChain, ToContext
-from aiida.orm import Str, Dict, AbstractCode
+from aiida.orm import Str, Dict, AbstractCode, Int
 from aiida.plugins import CalculationFactory
 from aiida_nn_xtb.smiles2structure import smiles2structure
 
@@ -18,6 +18,9 @@ class NNxTBWorkChain(WorkChain):
         # updated to AbstractCode to accurately accept all code types
         spec.input('code', valid_type=AbstractCode, help='The NN-xTB code set up on the cluster')
 
+        # adding the # of machines to ues
+        spec.input('num_machines', valid_type=Int, default=lambda: Int(1), help='The number of cluster nodes to use')
+        spec.input('num_mpiprocs_per_machine', valid_type=Int, default=lambda: Int(1), help='The number of processors per machine')
         # defining the chronological order of scripts the WorkChain will follow
         spec.outline(
             cls.build_structure, 
@@ -47,6 +50,10 @@ class NNxTBWorkChain(WorkChain):
         builder.structure = self.ctx.structure
         builder.code = self.inputs.code
         
+        builder.metadata.options.resources = {
+            'num_machines': self.inputs.num_machines.value,
+            'num_mpiprocs_per_machine': self.inputs.num_mpiprocs_per_machine.value
+            }
         # submit the code to the cluster
         running_calc = self.submit(builder)
         

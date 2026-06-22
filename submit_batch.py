@@ -2,13 +2,13 @@ import argparse
 import sys
 from aiida import load_profile
 from aiida.engine import submit
-from aiida.orm import Str, Group, load_code
+from aiida.orm import Str, Group, load_code, Int
 from aiida_nn_xtb.workchain import NNxTBWorkChain
 
 # Boot up the database before loading AiiDA modules
 load_profile()
 
-def launch_batch(group_name, smiles_list, cluster_code_string):
+def launch_batch(group_name, smiles_list, cluster_code_string, num_machines, num_mpiprocs_per_machine):
     """Submits a list of SMILES strings to the AiiDA daemon and organizes them into a Group."""
     
     # create the bucket (or load it if it already exists)
@@ -27,7 +27,9 @@ def launch_batch(group_name, smiles_list, cluster_code_string):
         running_node = submit(
             NNxTBWorkChain, 
             smiles=Str(smiles_string), 
-            code=cluster_code
+            code=cluster_code,
+            num_machines=Int(num_machines),
+            num_mpiprocs_per_machine=Int(num_mpiprocs_per_machine)
         )
         
         # immediately drop the tracking node into your AiiDA group
@@ -39,13 +41,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Launch a batch of SMILES strings.")
     parser.add_argument('-g', '--group', type=str, required=True)
     parser.add_argument('-c', '--code', type=str, required=True)
+    parser.add_argument('-m', '--machines', type=int, default=1, help='The number of machines to use per job')
+    parser.add_argument('-p', '--processors', type=int, default=1, help='The number of processors per machine')
     
     # add a new argument for a text file
     parser.add_argument('-f', '--file', type=str, required=True, help="Text file containing SMILES strings")
     args = parser.parse_args()
     
     # open the file and read the strings into a list
-  try:
+    try:
         with open(args.file, 'r') as file:
             imported_smiles = [line.strip() for line in file if line.strip()]
         if not imported_smiles:
@@ -61,5 +65,7 @@ if __name__ == "__main__":
     launch_batch(
         group_name=args.group, 
         smiles_list=imported_smiles, 
-        cluster_code_string=args.code
+        cluster_code_string=args.code,
+        num_machines=args.machines,
+        num_mpiprocs_per_machine=args.processors
     )
