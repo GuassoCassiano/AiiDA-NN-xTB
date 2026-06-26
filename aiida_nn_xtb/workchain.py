@@ -18,9 +18,13 @@ class NNxTBWorkChain(WorkChain):
         # updated to AbstractCode to accurately accept all code types
         spec.input('code', valid_type=AbstractCode, help='The NN-xTB code set up on the cluster')
 
-        # adding the # of machines to ues
+        # adding the # of machines to use
         spec.input('num_machines', valid_type=Int, default=lambda: Int(1), help='The number of cluster nodes to use')
         spec.input('num_mpiprocs_per_machine', valid_type=Int, default=lambda: Int(1), help='The number of processors per machine')
+
+        # adding the timneout duration
+        spec.input('max_wallclock_seconds', valid_type=Int, default=lambda: Int(86400), help='Max time in seconds before timeout')
+
         # defining the chronological order of scripts the WorkChain will follow
         spec.outline(
             cls.build_structure, 
@@ -54,6 +58,9 @@ class NNxTBWorkChain(WorkChain):
             'num_machines': self.inputs.num_machines.value,
             'num_mpiprocs_per_machine': self.inputs.num_mpiprocs_per_machine.value
             }
+
+        builder.metadata.options.max_wallclock_seconds = self.inputs.max_wallclock_seconds.value
+        
         # submit the code to the cluster
         running_calc = self.submit(builder)
         
