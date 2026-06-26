@@ -1,6 +1,6 @@
 [workspace]
 name = "aiida-nn-xtb"
-version = "0.1.0"
+version = "0.2.0"
 description = "AiiDA Plugin for easier use of NN-xTB energy calculations"
 channels = ["conda-forge"]
 platforms = ["linux-64"]

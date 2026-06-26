@@ -4,7 +4,7 @@ The `submit_batch.py` script is the user-facing ignition switch for our entire c
 
 ## 1. The Terminal Interface (argparse)
 
-Because this script acts as the main steering wheel, researchers interact with it directly through the terminal. We use Python's built-in `argparse` library to set up three required command-line flags. A user must provide a target group name (`-g`), the specific supercomputer code they want to run (`-c`), and a text file containing their target molecules (`-f`). 
+Because this script acts as the main steering wheel, researchers interact with it directly through the terminal. We use Python's built-in `input` function to set up three required command-line flags. A user must provide a target group name, the specific supercomputer code they want to run, the number of processors to use, and a text file containing their target molecules. 
 
 Once the user hits enter, the script opens that text file and uses a quick list comprehension command (`line.strip()`) to automatically clean the data, stripping out any accidental blank lines or hidden spaces before the pipeline even starts.
 

@@ -92,7 +92,12 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
     root.create_array('num_atoms', shape=num_atoms_arr.shape, dtype=np.int32)[:] = num_atoms_arr
 
     print("Export complete! Zarr store is clean and ready.")
-
+    print("""
+       /|、
+      (˚ˎ 。7  
+       |、˜〵  / AiiDA-NN-xTB v0.2.0        
+       じしˍ,)/  Cassiano Guasso 
+    """)
 if __name__ == "__main__":
     # set up the argument parser
     parser = argparse.ArgumentParser(description="Extracts AiiDA NN-xTB data to a Zarr file.")
