@@ -12,11 +12,6 @@ dist/
 build/
 *.egg-info/
 
-# Testing and Training caches
-.pytest_cache/
-wandb/
-tests/
-
 # AiiDA and Data outputs
 *.zarr/
 *.xyz
@@ -28,4 +23,3 @@ tests/
 charges
 wbo
 xtbrestart
-submit_test
