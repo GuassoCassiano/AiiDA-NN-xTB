@@ -1,9 +1,9 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from aiida.orm import StructureData
-from aiida.engine import calcfunction
+from aiida_workgraph import task
 
-@calcfunction
+@task.calcfunction
 def smiles2structure(smiles_node):
     """
     Converts SMILES strings into an AiiDA StructureData Node
