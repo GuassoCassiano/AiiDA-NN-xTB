@@ -1,5 +1,5 @@
 # Architecture Overview
-This repository contains an automated AiiDA pipeline developed for the Seonah Kim Group. It is designed to take raw SMILES strings, generate 3D molecular structures using RDKit, optimize them, and run them through NN-xTB to extract converged energies.
+This repository contains an automated AiiDA pipeline developed for the Seonah Kim Group. It is designed to take raw SMILES strings, generate 3D molecular structures using RDKit, optimize them, and run them through NN-xTB to extract converged energies. We utilize the AiiDA WorkGraph function to easily track and supervise the calculations.
 
 ## What is AiiDA?
 Within this project, AiiDA is a workflow manager used to make the downstream of our NN-xTB calculations easier to track and manage. 
@@ -19,7 +19,7 @@ This project follows a relatively streamlined process. We take raw SMILES string
 
 The pipeline is physically broken down into the following files, which are executed in this general chronological order:
 
-1. **The Launcher (`submit_batch.py`):** The user-facing ignition switch. It sits completely outside the AiiDA engine, takes our target molecules, organizes an AiiDA Group, and feeds the inputs to the daemon.
+1. **The Launcher (`orchestrator.py`):** The user-facing ignition switch. It sits completely outside the AiiDA engine, takes our target molecules, organizes an AiiDA Group, and feeds the inputs to the daemon.
 2. **The WorkChain (`workchain.py`):** The automated AiiDA recipe. It receives the SMILES string and asynchronously orchestrates the next three steps while tracking the data provenance. 
 3. **The 3D Generator (`smiles2structure.py`):** Converts the 1D string into an optimized 3D geometry with a dynamic bounding box to satisfy AiiDA's StructureData requirements.
 4. **The Wrapper (`structure2xyz.py`):** Translates the AiiDA node into a strictly formatted XYZ file and sends the execution commands to the remote cluster.
