@@ -1,9 +1,9 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from aiida.orm import StructureData
-from aiida.engine import calcfunction
+from aiida_workgraph import task
 
-@calcfunction
+@task.calcfunction
 def smiles2structure(smiles_node):
     """
     Converts SMILES strings into an AiiDA StructureData Node
@@ -47,11 +47,19 @@ def smiles2structure(smiles_node):
     # update the structure with the dynamic box
     structure = StructureData(cell=dynamic_cell, pbc=[False, False, False])
 
+    # find the dead center of your new bounding box
+    center_offset = box_size / 2.0
+
     for i, atom in enumerate(mol.GetAtoms()):
         pos = conformer.GetAtomPosition(i)
         symbol = atom.GetSymbol()
 
-        structure.append_atom(position=(pos.x, pos.y, pos.z), symbols=symbol)
+        # shift the atom from the origin to the middle of the box
+        shifted_x = pos.x + center_offset
+        shifted_y = pos.y + center_offset
+        shifted_z = pos.z + center_offset
+
+        structure.append_atom(position=(shifted_x, shifted_y, shifted_z), symbols=symbol)
     
     # Stick the original SMILES string into the StructureData for XYZ file comment
     structure.base.extras.set("original_smiles", smiles_string)

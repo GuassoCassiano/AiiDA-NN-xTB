@@ -4,12 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aiida-nn-xtb"
-version = "0.2.0"
+version = "0.3.0"
 requires-python = ">=3.11"
 dependencies = [
     "aiida-core>=2.8.0",
     "rdkit>=2024",
-    "zarr>=3.2.1,<4",
+    "zarr<=3",
     "numpy>=2.4.6,<3"
 ]
 
@@ -25,7 +25,3 @@ packages = ["aiida_nn_xtb"]
 [project.entry-points."aiida.parsers"]
 # connects structure2xyz and xyz2dict scripts
 "nnxtb_parser" = "aiida_nn_xtb.xyz2dict:NNxTBParser"
-
-[project.entry-points."aiida.workflows"]
-# connect the first 3 scripts into 1 workflow function
-"nnxtb_workchain" = "aiida_nn_xtb.workchain:NNxTBWorkChain"
