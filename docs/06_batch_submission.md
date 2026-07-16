@@ -1,6 +1,6 @@
 # Batch Submission (The Launcher)
 
-The `submit_batch.py` script is the user-facing ignition switch for our entire computational pipeline. Unlike the previous scripts, which are deeply embedded as plugins inside the AiiDA database, this script acts as an external controller. It allows a researcher to take a simple text file of target molecules, automatically launch parallel asynchronous WorkChains for each one, and neatly organize the calculation nodes into designated database folders for easy retrieval later.
+The `orchestrator.py` script is the user-facing ignition switch for our entire computational pipeline. Unlike the previous scripts, which are deeply embedded as plugins inside the AiiDA database, this script acts as an external controller. It allows a researcher to take a simple text file of target molecules, automatically launch parallel asynchronous WorkChains for each one, and neatly organize the calculation nodes into designated database folders for easy retrieval later.
 
 ## 1. The Terminal Interface (argparse)
 
