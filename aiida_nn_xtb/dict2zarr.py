@@ -1,6 +1,6 @@
 from aiida import load_profile
-from aiida_nn_xtb.workchain import NNxTBWorkChain
-from aiida.orm import QueryBuilder, Dict, Group, StructureData, CalcJobNode
+from aiida.orm import QueryBuilder, Dict, Group, StructureData, WorkChainNode
+from aiida_nn_xtb.structure2xyz import NNxTBCalculation
 import zarr
 import numpy as np
 import argparse
@@ -13,40 +13,39 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
     
     qb = QueryBuilder()
 
-    # anchor the search to a specific batch
+    # 1. anchor the search to the specific batch folder
     qb.append(Group, filters={'label': target_group}, tag='my_group')
 
-    # find the WorkChain, only if it is in that Group and it finished perfectly
+    # 2. find the generic WorkGraph node sitting inside that folder
     qb.append(
-        NNxTBWorkChain, 
+        WorkChainNode, 
         with_group='my_group',
-        filters={'attributes.exit_status': 0},
-        tag='my_workchain'
+        tag='workgraph'
     )
-    # find the Output Dictionary
+    
+    # 3. find the sucessful xTB calculations executed by that WorkGraph 
+    qb.append(
+        NNxTBCalculation,
+        with_incoming='workgraph',
+        filters={'attributes.exit_status': 0},
+        tag='my_calcjob'
+    )
+    
+    # 4. grab the output dictionary from the successful CalcJob
     qb.append(
         Dict,
-        with_incoming='my_workchain',
+        with_incoming='my_calcjob',
         project='*',
         tag='results'
     )
 
-    # find the CalcJob that was executed in the WorkChain
-    qb.append(
-        CalcJobNode,
-        with_incoming='my_workchain',
-        tag='my_calcjob'
-    )
-
-    # find the Input Structure
+    # 5. grab the input structure from the successful CalcJob
     qb.append(
         StructureData,
         with_outgoing='my_calcjob',
         project='*',
         tag='structure'
     )
-
-
 
     total_calcs = qb.count()
     print(f"Found {total_calcs} perfect calculations in the '{target_group}' batch.")
