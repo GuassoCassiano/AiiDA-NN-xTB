@@ -1,9 +1,16 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from aiida.orm import StructureData
+
+# added added monkey patch for older redundant aiida specifics
+import aiida.engine.processes.functions as aiida_funcs
+if not hasattr(aiida_funcs, 'get_stack_size'):
+    aiida_funcs.get_stack_size = lambda *args, **kwargs: 1
+
+from aiida.engine import calcfunction
 from aiida_workgraph import task
 
-@task.calcfunction
+@calcfunction
 def smiles2structure(smiles_node):
     """
     Converts SMILES strings into an AiiDA StructureData Node
