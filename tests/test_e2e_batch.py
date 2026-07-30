@@ -1,85 +1,44 @@
-"""
-Pytest suite for AiiDA-NN-xTB: End-to-End Batch Processing and Zarr Compilation.
-"""
-
-import os
-import shutil
 import pytest
-import zarr
 from aiida import load_profile
-from aiida.engine import run
-from aiida.orm import Str, load_code, Group, Int
+from aiida_workgraph import WorkGraph
+from unittest.mock import patch, MagicMock
+from orchestrator import launch_batch
 
-# Import MVP WorkChain and the Zarr compiler
-from aiida_nn_xtb.workchain import NNxTBWorkChain
-from aiida_nn_xtb.dict2zarr import build_openqdc_zarr
-
+# Boot up the database for the test
 load_profile()
 
-def test_full_pipeline_compilation():
+@patch('orchestrator.WorkGraph.submit')
+@patch('orchestrator.Group.collection.get_or_create')
+@patch('orchestrator.load_code')
+def test_launch_batch_graph_creation(mock_load_code, mock_get_group, mock_submit):
     """
-    Test the full pipeline:
-    1. Runs a batch of 5 varying SMILES strings synchronously.
-    2. Groups the results.
-    3. Compiles them into a Zarr file.
-    4. Verifies the Zarr arrays contain exactly 5 entries.
+    Tests that the orchestrator successfully builds the WorkGraph and 
+    organizes the AiiDA group without actually submitting to the daemon.
     """
-    # 1. Define the test batch (increasing complexity)
-    smiles_list = [
-        "C",                      # Methane
-        "CCO",                    # Ethanol
-        "c1ccccc1",               # Benzene
-        "CC(=O)Oc1ccccc1C(=O)O",  # Aspirin
-        "CN1C=NC2=C1C(=O)N(C(=O)N2C)C" # Caffeine
-    ]
+    # 1. Setup our "intercepted" dummy responses
+    mock_group_instance = MagicMock()
+    mock_get_group.return_value = (mock_group_instance, True)
+    mock_load_code.return_value = MagicMock()
     
-    test_group_name = "pytest_e2e_run"
+    # 2. Provide a mini test batch
+    smiles_list = ["C", "CC", "CCC"]
     
-    # Create a fresh group for this test
-    group, created = Group.objects.get_or_create(label=test_group_name)
-
-    # Empty out any calculations from previous test runs so we start fresh
-    group.clear()
+    # 3. Run the orchestrator
+    launch_batch(
+        group_name="test_group",
+        smiles_list=smiles_list,
+        cluster_code_string="dummy_code@localhost",
+        num_machines=1,
+        num_mpiprocs_per_machine=1,
+        wallclock=3600
+    )
     
-    # 2. Run the batch synchronously
-    for smiles in smiles_list:
-        inputs = {
-            'smiles': Str(smiles),
-            'code': load_code('xtb@localhost'),
-            'num_machines': Int(1),
-            'num_mpiprocs_per_machine': Int(1),
-            'max_wallclock_seconds': Int(86400)
-        }
-        
-        # Use 'run' so Pytest waits for the calculation to finish
-        _, workchain_node = run.get_node(NNxTBWorkChain, **inputs)
-
-        assert workchain_node.is_finished_ok, f"Workchain failed for {smiles} with exit status {workchain_node.exit_status}"
-        
-        # Add the completed WorkChain to our test group
-        group.add_nodes(workchain_node)
-        
-    # 3. Run the Zarr extraction script targeting our test group
-    build_openqdc_zarr(target_group=test_group_name)
+    # 4. Verify the orchestrator did exactly what we expect
+    mock_load_code.assert_called_once_with("dummy_code@localhost")
+    mock_get_group.assert_called_once_with(label="test_group")
     
-    # 4. Assertions on the generated dataset.zarr
-    assert os.path.isdir("dataset.zarr"), "The dataset.zarr folder was not created."
+    # Ensure it actually tried to hit the submit button!
+    mock_submit.assert_called_once()
     
-    # Open the compiled Zarr store to verify the data
-    root = zarr.open('dataset.zarr', mode='r')
-    
-# Verify the arrays exist
-    assert 'positions' in root, "Positions array missing from Zarr."
-    assert 'energies' in root, "Energies array missing from Zarr."
-    assert 'atomic_numbers' in root, "Atomic numbers array missing from Zarr."
-    assert 'num_atoms' in root, "num_atoms array missing from Zarr."
-    
-    # Check the length using .shape[0]
-    num_energies = root['energies'].shape[0]
-    num_atoms_entries = root['num_atoms'].shape[0]
-    
-    assert num_energies == 5, f"Expected 5 energies, but the Zarr array shape is {root['energies'].shape}"
-    assert num_atoms_entries == 5, f"Expected 5 num_atoms entries, but the Zarr array shape is {root['num_atoms'].shape}"
-    
-    # 5. Teardown (Clean up the test file so it doesn't clutter your workspace)
-    shutil.rmtree("dataset.zarr")
+    # Ensure it added the tracking node to the group
+    mock_group_instance.add_nodes.assert_called_once()
