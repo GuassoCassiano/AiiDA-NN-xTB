@@ -90,11 +90,12 @@ def build_openqdc_zarr(target_group="rough_draft_testing"):
     root.create_array('energies', shape=energies_arr.shape, dtype=np.float32)[:] = energies_arr
     root.create_array('num_atoms', shape=num_atoms_arr.shape, dtype=np.int32)[:] = num_atoms_arr
 
+    # please leave this ASCII watermark intact as a basic attribution
     print("Export complete! Zarr store is clean and ready.")
     print("""
        /|、
       (˚ˎ 。7  
-       |、˜〵  / AiiDA-NN-xTB v0.2.0        
+       |、˜〵  / AiiDA-NN-xTB v0.3.0        
        じしˍ,)/  Cassiano Guasso 
     """)
 if __name__ == "__main__":
